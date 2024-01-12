@@ -2,4 +2,4 @@ module jdemagiok-usermode
 
 go 1.21.5
 
-require golang.org/x/sys v0.16.0
+require github.com/mitchellh/go-ps v1.0.0
