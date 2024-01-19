@@ -9,7 +9,7 @@ import (
 
 const (
 	PROCESSID_REQUEST   = iota
-	KERNEL_DRIVER_NAME  = "\\\\.\\linkjdemagiok81"
+	KERNEL_DRIVER_NAME  = "\\\\.\\linkjdemagiok82"
 	FILE_DEVICE_UNKNOWN = 0x00000022
 	METHOD_BUFFERED     = 0
 	FILE_ANY_ACCESS     = 0
@@ -29,6 +29,13 @@ type KERNEL_READ_REQUEST struct {
 	srcPid     int
 	srcAddress uintptr
 	pBuffer    *uintptr
+	size       int
+}
+
+type KERNEL_READ_FLOAT_REQUEST struct {
+	srcPid     int
+	srcAddress uintptr
+	pBuffer    *float32
 	size       int
 }
 
@@ -186,6 +193,32 @@ func (d *Driver) Readvm(address uintptr, size int) uintptr {
 		srcAddress: address,
 		pBuffer:    &buffer,
 		size:       8,
+	}
+
+	err := syscall.DeviceIoControl(
+		d.handle,
+		CTL_CODE(FILE_DEVICE_UNKNOWN, 0x888, METHOD_BUFFERED, FILE_ANY_ACCESS),
+		(*byte)(unsafe.Pointer(&request)),
+		uint32(unsafe.Sizeof(request)),
+		nil,
+		0,
+		nil,
+		nil,
+	)
+	if err != nil {
+		fmt.Println("Error reading memory:", err)
+		return 0
+	}
+	return *request.pBuffer
+}
+
+func (d *Driver) ReadvmFloat(address uintptr) float32 {
+	var buffer float32
+	request := KERNEL_READ_FLOAT_REQUEST{
+		srcPid:     d.processID,
+		srcAddress: address,
+		pBuffer:    &buffer,
+		size:       4,
 	}
 
 	err := syscall.DeviceIoControl(

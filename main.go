@@ -23,4 +23,6 @@ func main() {
 	fmt.Printf("aPawn %x\n", aPawn)
 	damageHandler := game.GetDamageHandler(driver, aPawn)
 	fmt.Printf("damageHandler %x\n", damageHandler)
+	health := game.GetHealth(driver, damageHandler)
+	fmt.Printf("health %f\n", health)
 }

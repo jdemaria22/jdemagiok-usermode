@@ -6,7 +6,7 @@ import (
 )
 
 func GetUWorld(d *kernel.Driver) uintptr {
-	uworld := d.Readvm(d.Guardedregion+offset.WORLD, 8)
+	uworld := uintptr(d.Readvm(d.Guardedregion+offset.WORLD, 8))
 
 	var uworldOffset uintptr
 
@@ -20,7 +20,7 @@ func GetUWorld(d *kernel.Driver) uintptr {
 }
 
 func GetGameInstance(d *kernel.Driver, uworld uintptr) uintptr {
-	gameinstance := d.Readvm(uworld+offset.GAMEINSTANCE, 8)
+	gameinstance := uintptr(d.Readvm(uworld+offset.GAMEINSTANCE, 8))
 
 	if kernel.IsGuarded(gameinstance) {
 		return kernel.WardedTo(d.Guardedregion, gameinstance)
@@ -30,7 +30,7 @@ func GetGameInstance(d *kernel.Driver, uworld uintptr) uintptr {
 }
 
 func GetULocalPlayerArray(d *kernel.Driver, gameinstance uintptr) uintptr {
-	uLocalPlayerArray := d.Readvm(gameinstance+offset.LOCALPLAYERARRAY, 8)
+	uLocalPlayerArray := uintptr(d.Readvm(gameinstance+offset.LOCALPLAYERARRAY, 8))
 
 	if kernel.IsGuarded(uLocalPlayerArray) {
 		return kernel.WardedTo(d.Guardedregion, uLocalPlayerArray)
@@ -40,7 +40,7 @@ func GetULocalPlayerArray(d *kernel.Driver, gameinstance uintptr) uintptr {
 }
 
 func GetULocalPlayer(d *kernel.Driver, uLocalPlayerArray uintptr) uintptr {
-	uLocalPlayer := d.Readvm(uLocalPlayerArray, 8)
+	uLocalPlayer := uintptr(d.Readvm(uLocalPlayerArray, 8))
 
 	if kernel.IsGuarded(uLocalPlayer) {
 		return kernel.WardedTo(d.Guardedregion, uLocalPlayer)
@@ -50,7 +50,7 @@ func GetULocalPlayer(d *kernel.Driver, uLocalPlayerArray uintptr) uintptr {
 }
 
 func GetAPlayerControllerPtr(d *kernel.Driver, uLocalPlayer uintptr) uintptr {
-	aPlayerControllerPtr := d.Readvm(uLocalPlayer+offset.PLAYERCONTROLLERPTR, 8)
+	aPlayerControllerPtr := uintptr(d.Readvm(uLocalPlayer+offset.PLAYERCONTROLLERPTR, 8))
 
 	if kernel.IsGuarded(aPlayerControllerPtr) {
 		return kernel.WardedTo(d.Guardedregion, aPlayerControllerPtr)
@@ -60,7 +60,7 @@ func GetAPlayerControllerPtr(d *kernel.Driver, uLocalPlayer uintptr) uintptr {
 }
 
 func GetAPawn(d *kernel.Driver, aPlayerControllerPtr uintptr) uintptr {
-	aPawn := d.Readvm(aPlayerControllerPtr+offset.PAWN, 8)
+	aPawn := uintptr(d.Readvm(aPlayerControllerPtr+offset.PAWN, 8))
 
 	if kernel.IsGuarded(aPawn) {
 		return kernel.WardedTo(d.Guardedregion, aPawn)
@@ -70,11 +70,15 @@ func GetAPawn(d *kernel.Driver, aPlayerControllerPtr uintptr) uintptr {
 }
 
 func GetDamageHandler(d *kernel.Driver, aPawn uintptr) uintptr {
-	damageHandler := d.Readvm(aPawn+offset.DAMAGEHANDLER, 8)
+	damageHandler := uintptr(d.Readvm(aPawn+offset.DAMAGEHANDLER, 8))
 
 	if kernel.IsGuarded(damageHandler) {
 		return kernel.WardedTo(d.Guardedregion, damageHandler)
 	}
 
 	return damageHandler
+}
+
+func GetHealth(d *kernel.Driver, damageHandler uintptr) float32 {
+	return d.ReadvmFloat(damageHandler + offset.HEALTH)
 }
