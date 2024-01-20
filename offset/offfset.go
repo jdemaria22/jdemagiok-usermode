@@ -25,8 +25,8 @@ const (
 	ControlRotationOffset           uintptr = 0x448
 	RootComponentOffset             uintptr = 0x238
 	DamageHandlerOffset             uintptr = 0x9F0
-	ActorIDOffset                   uintptr = 0x18
-	FnameIDOffset                   uintptr = 0x38
+	ActorIDOffset                   uintptr = 0x38
+	FnameIDOffset                   uintptr = 0x18
 	DormantOffset                   uintptr = 0x100
 	PlayerStateOffset               uintptr = 0x3f8
 	CurrentMeshOffset               uintptr = 0x438

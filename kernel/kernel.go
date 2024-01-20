@@ -2,6 +2,7 @@ package kernel
 
 import (
 	"fmt"
+	"jdemagiok-usermode/geometry"
 	"jdemagiok-usermode/usermode"
 	"syscall"
 	"unsafe"
@@ -9,7 +10,7 @@ import (
 
 const (
 	PROCESSID_REQUEST   = iota
-	KERNEL_DRIVER_NAME  = "\\\\.\\linkjdemagiok82"
+	KERNEL_DRIVER_NAME  = "\\\\.\\dlinkjdemagiok"
 	FILE_DEVICE_UNKNOWN = 0x00000022
 	METHOD_BUFFERED     = 0
 	FILE_ANY_ACCESS     = 0
@@ -56,14 +57,14 @@ type KERNEL_READ_INT_REQUEST struct {
 type KERNEL_READ_FVECTOR_REQUEST struct {
 	srcPid     int
 	srcAddress uintptr
-	pBuffer    *FVector
+	pBuffer    *geometry.FVector
 	size       int
 }
 
 type KERNEL_READ_FARRAY_REQUEST struct {
 	srcPid     int
 	srcAddress uintptr
-	pBuffer    *TArrayDrink
+	pBuffer    *TArray
 	size       int
 }
 
@@ -214,6 +215,14 @@ func (d *Driver) ReadGuardedRegion() uintptr {
 	return *request.pBuffer
 }
 
+func (d *Driver) Read(address uintptr) uintptr {
+	res := d.Readvm(address, 8)
+	if IsGuarded(res) {
+		return WardedTo(d.Guardedregion, res)
+	}
+	return res
+}
+
 func (d *Driver) Readvm(address uintptr, size int) uintptr {
 	var buffer uintptr
 	request := KERNEL_READ_REQUEST{
@@ -317,8 +326,8 @@ func (d *Driver) ReadvmInt(address uintptr) int {
 	return *request.pBuffer
 }
 
-func (d *Driver) ReadvmVector(address uintptr) FVector {
-	var buffer FVector
+func (d *Driver) ReadvmVector(address uintptr) geometry.FVector {
+	var buffer geometry.FVector
 	request := KERNEL_READ_FVECTOR_REQUEST{
 		srcPid:     d.processID,
 		srcAddress: address,
@@ -338,13 +347,13 @@ func (d *Driver) ReadvmVector(address uintptr) FVector {
 	)
 	if err != nil {
 		fmt.Println("Error reading memory:", err)
-		return FVector{}
+		return geometry.FVector{}
 	}
 	return *request.pBuffer
 }
 
-func (d *Driver) ReadvmArray(address uintptr) TArrayDrink {
-	var buffer TArrayDrink
+func (d *Driver) ReadvmArray(address uintptr) TArray {
+	var buffer TArray
 	request := KERNEL_READ_FARRAY_REQUEST{
 		srcPid:     d.processID,
 		srcAddress: address,
@@ -364,7 +373,7 @@ func (d *Driver) ReadvmArray(address uintptr) TArrayDrink {
 	)
 	if err != nil {
 		fmt.Println("Error reading memory:", err)
-		return TArrayDrink{}
+		return TArray{}
 	}
 	return *request.pBuffer
 }

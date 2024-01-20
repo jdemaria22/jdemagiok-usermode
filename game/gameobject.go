@@ -1,6 +1,6 @@
 package game
 
-import "jdemagiok-usermode/kernel"
+import "jdemagiok-usermode/geometry"
 
 type SGame struct {
 	World SWorld
@@ -32,7 +32,7 @@ type SPlayerController struct {
 
 type SPersistanceLevel struct {
 	Pointer    uintptr
-	ActorArray kernel.TArrayDrink
+	ActorArray []SActor
 }
 
 type SPawn struct {
@@ -40,7 +40,11 @@ type SPawn struct {
 	TeamID           int
 	UniqueID         int
 	FNameID          int
-	RelativeLocation kernel.FVector
+	RelativeLocation geometry.FVector
 	BIsDormant       bool
 	Health           float32
+}
+
+type SActor struct {
+	Pawn SPawn
 }
