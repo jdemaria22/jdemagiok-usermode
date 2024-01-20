@@ -1,14 +1,5 @@
 package offset
 
-// const (
-// 	GAMEINSTANCE        = 0x1A0
-// 	LOCALPLAYERARRAY    = 0x40
-// 	PLAYERCONTROLLERPTR = 0x38
-// 	PAWN                = 0x468
-// 	DAMAGEHANDLER       = 0x9F0
-// 	HEALTH              = 0x1B0
-// )
-
 const (
 	World                           uintptr = 0x60
 	FnamePoolOffset                 uintptr = 0xA23E540
