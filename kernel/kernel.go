@@ -39,6 +39,34 @@ type KERNEL_READ_FLOAT_REQUEST struct {
 	size       int
 }
 
+type KERNEL_READ_BOOL_REQUEST struct {
+	srcPid     int
+	srcAddress uintptr
+	pBuffer    *bool
+	size       int
+}
+
+type KERNEL_READ_INT_REQUEST struct {
+	srcPid     int
+	srcAddress uintptr
+	pBuffer    *int
+	size       int
+}
+
+type KERNEL_READ_FVECTOR_REQUEST struct {
+	srcPid     int
+	srcAddress uintptr
+	pBuffer    *FVector
+	size       int
+}
+
+type KERNEL_READ_FARRAY_REQUEST struct {
+	srcPid     int
+	srcAddress uintptr
+	pBuffer    *TArrayDrink
+	size       int
+}
+
 type _KERNEL_READ_GUARDED_REGION struct {
 	srcPid  int
 	pBuffer *uintptr
@@ -234,6 +262,110 @@ func (d *Driver) ReadvmFloat(address uintptr) float32 {
 	if err != nil {
 		fmt.Println("Error reading memory:", err)
 		return 0
+	}
+	return *request.pBuffer
+}
+
+func (d *Driver) ReadvmBool(address uintptr) bool {
+	var buffer bool
+	request := KERNEL_READ_BOOL_REQUEST{
+		srcPid:     d.processID,
+		srcAddress: address,
+		pBuffer:    &buffer,
+		size:       1,
+	}
+
+	err := syscall.DeviceIoControl(
+		d.handle,
+		CTL_CODE(FILE_DEVICE_UNKNOWN, 0x888, METHOD_BUFFERED, FILE_ANY_ACCESS),
+		(*byte)(unsafe.Pointer(&request)),
+		uint32(unsafe.Sizeof(request)),
+		nil,
+		0,
+		nil,
+		nil,
+	)
+	if err != nil {
+		fmt.Println("Error reading memory:", err)
+		return false
+	}
+	return *request.pBuffer
+}
+
+func (d *Driver) ReadvmInt(address uintptr) int {
+	var buffer int
+	request := KERNEL_READ_INT_REQUEST{
+		srcPid:     d.processID,
+		srcAddress: address,
+		pBuffer:    &buffer,
+		size:       4,
+	}
+
+	err := syscall.DeviceIoControl(
+		d.handle,
+		CTL_CODE(FILE_DEVICE_UNKNOWN, 0x888, METHOD_BUFFERED, FILE_ANY_ACCESS),
+		(*byte)(unsafe.Pointer(&request)),
+		uint32(unsafe.Sizeof(request)),
+		nil,
+		0,
+		nil,
+		nil,
+	)
+	if err != nil {
+		fmt.Println("Error reading memory:", err)
+		return 0
+	}
+	return *request.pBuffer
+}
+
+func (d *Driver) ReadvmVector(address uintptr) FVector {
+	var buffer FVector
+	request := KERNEL_READ_FVECTOR_REQUEST{
+		srcPid:     d.processID,
+		srcAddress: address,
+		pBuffer:    &buffer,
+		size:       int(unsafe.Sizeof(buffer)),
+	}
+
+	err := syscall.DeviceIoControl(
+		d.handle,
+		CTL_CODE(FILE_DEVICE_UNKNOWN, 0x888, METHOD_BUFFERED, FILE_ANY_ACCESS),
+		(*byte)(unsafe.Pointer(&request)),
+		uint32(unsafe.Sizeof(request)),
+		nil,
+		0,
+		nil,
+		nil,
+	)
+	if err != nil {
+		fmt.Println("Error reading memory:", err)
+		return FVector{}
+	}
+	return *request.pBuffer
+}
+
+func (d *Driver) ReadvmArray(address uintptr) TArrayDrink {
+	var buffer TArrayDrink
+	request := KERNEL_READ_FARRAY_REQUEST{
+		srcPid:     d.processID,
+		srcAddress: address,
+		pBuffer:    &buffer,
+		size:       int(unsafe.Sizeof(buffer)),
+	}
+
+	err := syscall.DeviceIoControl(
+		d.handle,
+		CTL_CODE(FILE_DEVICE_UNKNOWN, 0x888, METHOD_BUFFERED, FILE_ANY_ACCESS),
+		(*byte)(unsafe.Pointer(&request)),
+		uint32(unsafe.Sizeof(request)),
+		nil,
+		0,
+		nil,
+		nil,
+	)
+	if err != nil {
+		fmt.Println("Error reading memory:", err)
+		return TArrayDrink{}
 	}
 	return *request.pBuffer
 }
