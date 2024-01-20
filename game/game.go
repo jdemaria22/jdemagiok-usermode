@@ -98,7 +98,7 @@ func GetFNameId(d *kernel.Driver, aPawn uintptr) int {
 }
 
 func GetUniqueID(d *kernel.Driver, aPawn uintptr) int {
-	return d.ReadvmInt(aPawn + offset.ActorIDOffset)
+	return d.ReadvmInt(aPawn + offset.FnameIDOffset)
 }
 
 func GetHealth(d *kernel.Driver, aPawn uintptr) float32 {
@@ -135,4 +135,12 @@ func GetActorArrayBase(d *kernel.Driver, uLevel uintptr) uintptr {
 
 func GetActorArrayCount(d *kernel.Driver, uLevel uintptr) int {
 	return d.ReadvmInt(uLevel + offset.ActorCountOffset)
+}
+
+func GetGameStateBase(d *kernel.Driver, uworld uintptr) uintptr {
+	gameStateBase := d.Readvm(uworld+offset.GameStateOffset, 8)
+	if kernel.IsGuarded(gameStateBase) {
+		gameStateBase = kernel.WardedTo(d.Guardedregion, gameStateBase)
+	}
+	return gameStateBase
 }

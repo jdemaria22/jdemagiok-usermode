@@ -312,7 +312,6 @@ func (d *Driver) ReadvmInt(address uintptr) int {
 		nil,
 	)
 	if err != nil {
-		fmt.Println("Error reading memory:", err)
 		return 0
 	}
 	return *request.pBuffer

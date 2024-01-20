@@ -8,6 +8,12 @@ type FVector struct {
 	Z float32
 }
 
+type FMinimalViewInfo struct {
+	Location FVector
+	Rotation FVector
+	FOV      float32
+}
+
 func NewFVector(x, y, z float32) FVector {
 	return FVector{X: x, Y: y, Z: z}
 }
