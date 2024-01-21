@@ -46,7 +46,7 @@ func main() {
 	ebiten.SetInitFocused(true)
 	ebiten.SetVsyncEnabled(true)
 	ebiten.SetMaxTPS(165)
-
+	ebiten.SetFullscreen(true)
 	driver = kernel.NewDriver()
 	defer driver.Close()
 

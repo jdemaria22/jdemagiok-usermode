@@ -63,4 +63,5 @@ const (
 	CurrentEquippableVFXStateOffset uintptr = 0xcf8
 	FresnelIntensityOffset          uintptr = 0x1c8
 	CacheCamOffset                  uintptr = 0x1FB0
+	SpawnedCharacter                uintptr = 0x3f0
 )

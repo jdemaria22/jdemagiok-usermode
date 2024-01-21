@@ -43,7 +43,6 @@ func (game *SGame) Loop(d *kernel.Driver) {
 func getEnemyPawn(d *kernel.Driver, pawnPointer uintptr) SEnemyPawn {
 	enemyPawn := SEnemyPawn{}
 	enemyPawn.Pointer = pawnPointer
-	enemyPawn.TeamID = getTeamID(d, enemyPawn.Pointer)
 	enemyPawn.UniqueID = d.ReadvmInt(enemyPawn.Pointer + offset.ActorIDOffset)
 	enemyPawn.FNameID = d.ReadvmInt(enemyPawn.Pointer + offset.FnameIDOffset)
 	enemyPawn.RelativeLocation = getRelativePosition(d, enemyPawn.Pointer)
