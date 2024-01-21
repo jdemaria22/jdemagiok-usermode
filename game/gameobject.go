@@ -12,6 +12,7 @@ type SWorld struct {
 	Pointer          uintptr
 	GameInstance     SGameInstance
 	PersistanceLevel SPersistanceLevel
+	GameState        uintptr
 }
 
 type SGameInstance struct {

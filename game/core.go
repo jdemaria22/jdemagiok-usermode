@@ -4,6 +4,7 @@ import (
 	"jdemagiok-usermode/geometry"
 	"jdemagiok-usermode/kernel"
 	"jdemagiok-usermode/offset"
+	"log"
 )
 
 func GetGame(d *kernel.Driver) SGame {
@@ -17,19 +18,45 @@ func GetWorld(d *kernel.Driver) SWorld {
 	gameWorld.Pointer = getUWorld(d)
 	gameWorld.GameInstance = GetGameInstance(d, gameWorld)
 	gameWorld.PersistanceLevel = GetPersisntanceLevel(d, gameWorld)
+	gameWorld.GameState = d.Read(gameWorld.Pointer + offset.GameStateOffset)
+	array := d.ReadvmArray(gameWorld.GameState + 0x3f0)
+	// fmt.Println("arrayCou ", array.Count)
+	var actors []SActor
+	for i := 0; i < int(array.Count); i++ {
+		actorPointerPawn := array.ReadAtIndex2(i, d)
+		if actorPointerPawn == 0 {
+			continue
+		}
+		// fmt.Printf("actorPointerPawn %x \n", actorPointerPawn)
+		pawnPtr := d.Read(actorPointerPawn + 0x918)
+		if pawnPtr == 0 {
+			continue
+		}
+		// fmt.Printf("pawnPtr %x \n", pawnPtr)
+		pawn := SEnemyPawn{}
+		pawn.Pointer = pawnPtr
+		actors = append(actors, SActor{pawn})
+	}
+	gameWorld.PersistanceLevel.ActorArray = actors
 	return gameWorld
 }
 
 func GetPersisntanceLevel(d *kernel.Driver, world SWorld) SPersistanceLevel {
 	persistanceLevel := SPersistanceLevel{}
 	persistanceLevel.Pointer = d.Read(world.Pointer + offset.PersistentLevelOffset)
-	persistanceLevel.ActorArray = getActorArray(d, world, persistanceLevel)
+	if persistanceLevel.Pointer == 0 {
+		log.Fatal("se acabo instancia")
+	}
+	// persistanceLevel.ActorArray = getActorArray(d, world, persistanceLevel)
 	return persistanceLevel
 }
 
 func GetGameInstance(d *kernel.Driver, world SWorld) SGameInstance {
 	gameInstance := SGameInstance{}
 	gameInstance.Pointer = d.Read(world.Pointer + offset.OwningGameInstanceOffset)
+	if gameInstance.Pointer == 0 {
+		log.Fatal("se acabo instancia")
+	}
 	gameInstance.LocalPlayerArray = d.Read(gameInstance.Pointer + offset.LocalPlayersOffset)
 	gameInstance.LocalPlayer = GetLocalPlayer(d, gameInstance)
 	return gameInstance
