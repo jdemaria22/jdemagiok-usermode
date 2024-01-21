@@ -4,6 +4,7 @@ import (
 	"jdemagiok-usermode/geometry"
 	"jdemagiok-usermode/kernel"
 	"jdemagiok-usermode/offset"
+	"log"
 )
 
 func GetGame(d *kernel.Driver) SGame {
@@ -23,6 +24,9 @@ func GetWorld(d *kernel.Driver) SWorld {
 func GetPersisntanceLevel(d *kernel.Driver, world SWorld) SPersistanceLevel {
 	persistanceLevel := SPersistanceLevel{}
 	persistanceLevel.Pointer = d.Read(world.Pointer + offset.PersistentLevelOffset)
+	if persistanceLevel.Pointer == 0 {
+		log.Fatal("se acabo instancia")
+	}
 	persistanceLevel.ActorArray = getActorArray(d, world, persistanceLevel)
 	return persistanceLevel
 }
@@ -30,6 +34,9 @@ func GetPersisntanceLevel(d *kernel.Driver, world SWorld) SPersistanceLevel {
 func GetGameInstance(d *kernel.Driver, world SWorld) SGameInstance {
 	gameInstance := SGameInstance{}
 	gameInstance.Pointer = d.Read(world.Pointer + offset.OwningGameInstanceOffset)
+	if gameInstance.Pointer == 0 {
+		log.Fatal("se acabo instancia")
+	}
 	gameInstance.LocalPlayerArray = d.Read(gameInstance.Pointer + offset.LocalPlayersOffset)
 	gameInstance.LocalPlayer = GetLocalPlayer(d, gameInstance)
 	return gameInstance

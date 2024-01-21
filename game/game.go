@@ -19,10 +19,6 @@ func (game *SGame) Draw(d *kernel.Driver, screen *ebiten.Image) {
 		if enemyPawn.Health > 0 && enemyPawn.BIsDormant {
 			enemyPawn = addAditionalInfoToEnemyPawn(d, enemyPawn, game)
 			drawBox(screen, enemyPawn.RelativeLocationProjected.X-enemyPawn.BoxWidth/2, enemyPawn.RelativeLocationProjected.Y-enemyPawn.BoxHeight/2, enemyPawn.BoxHeight, enemyPawn.BoxWidth)
-			// vector.StrokeLine(screen, enemyPawn.RelativeLocationProjected.X, enemyPawn.RelativeLocationProjected.Y, enemyPawn.RelativeLocationProjected.X+50, enemyPawn.RelativeLocationProjected.Y, 1, color.RGBA{255, 0, 0, 255}, false)
-			// vector.StrokeLine(screen, enemyPawn.RelativeLocationProjected.X, enemyPawn.RelativeLocationProjected.Y+30, enemyPawn.RelativeLocationProjected.X+50, enemyPawn.RelativeLocationProjected.Y+30, 1, color.RGBA{255, 0, 0, 255}, false)
-			// vector.StrokeLine(screen, enemyPawn.RelativeLocationProjected.X, enemyPawn.RelativeLocationProjected.Y, enemyPawn.RelativeLocationProjected.X, enemyPawn.RelativeLocationProjected.Y+30, 1, color.RGBA{255, 0, 0, 0}, false)
-			// vector.StrokeLine(screen, enemyPawn.RelativeLocationProjected.X+50, enemyPawn.RelativeLocationProjected.Y, enemyPawn.RelativeLocationProjected.X+50, enemyPawn.RelativeLocationProjected.Y+30, 1, color.RGBA{255, 0, 0, 255}, false)
 		}
 	}
 }
