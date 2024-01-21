@@ -1,0 +1,3 @@
+g++ -c -o Driver.o Driver.cpp
+
+g++ -shared -o jdemagiok-library.dll Driver.o -lntdll -lwinmm
