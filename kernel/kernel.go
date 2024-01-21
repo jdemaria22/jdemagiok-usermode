@@ -68,6 +68,13 @@ type KERNEL_READ_FARRAY_REQUEST struct {
 	size       int
 }
 
+type KERNEL_READ_MINIMAP_VIEW_INFO_REQUEST struct {
+	srcPid     int
+	srcAddress uintptr
+	pBuffer    *geometry.FMinimalViewInfo
+	size       int
+}
+
 type _KERNEL_READ_GUARDED_REGION struct {
 	srcPid  int
 	pBuffer *uintptr
@@ -374,6 +381,32 @@ func (d *Driver) ReadvmArray(address uintptr) TArray {
 	if err != nil {
 		fmt.Println("Error reading memory:", err)
 		return TArray{}
+	}
+	return *request.pBuffer
+}
+
+func (d *Driver) ReadvmMinimalView(address uintptr) geometry.FMinimalViewInfo {
+	var buffer geometry.FMinimalViewInfo
+	request := KERNEL_READ_MINIMAP_VIEW_INFO_REQUEST{
+		srcPid:     d.processID,
+		srcAddress: address,
+		pBuffer:    &buffer,
+		size:       int(unsafe.Sizeof(buffer)),
+	}
+
+	err := syscall.DeviceIoControl(
+		d.handle,
+		CTL_CODE(FILE_DEVICE_UNKNOWN, 0x888, METHOD_BUFFERED, FILE_ANY_ACCESS),
+		(*byte)(unsafe.Pointer(&request)),
+		uint32(unsafe.Sizeof(request)),
+		nil,
+		0,
+		nil,
+		nil,
+	)
+	if err != nil {
+		fmt.Println("Error reading memory:", err)
+		return geometry.FMinimalViewInfo{}
 	}
 	return *request.pBuffer
 }

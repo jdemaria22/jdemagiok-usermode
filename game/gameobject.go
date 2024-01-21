@@ -1,6 +1,8 @@
 package game
 
-import "jdemagiok-usermode/geometry"
+import (
+	"jdemagiok-usermode/geometry"
+)
 
 type SGame struct {
 	World SWorld
@@ -28,6 +30,7 @@ type SPlayerController struct {
 	PlayerCameraManager uintptr
 	AHUD                uintptr
 	Pawn                SPawn
+	MinimalViewInfo     geometry.FMinimalViewInfo
 }
 
 type SPersistanceLevel struct {
@@ -45,6 +48,26 @@ type SPawn struct {
 	Health           float32
 }
 
+type SEnemyPawn struct {
+	Pointer                   uintptr
+	TeamID                    int
+	UniqueID                  int
+	FNameID                   int
+	RelativeLocation          geometry.FVector
+	RelativeDistance          float32
+	BIsDormant                bool
+	Health                    float32
+	SkeletalMesh              uintptr
+	RelativeLocationProjected geometry.FVector
+	HeadBone                  geometry.FVector
+	HeadBoneProjected         geometry.FVector
+	RootBone                  geometry.FVector
+	RootBoneProjected         geometry.FVector
+	RootBoneProjected2        geometry.FVector
+	Distance                  float32
+	BoxHeight                 float32
+	BoxWidth                  float32
+}
 type SActor struct {
-	Pawn SPawn
+	Pawn SEnemyPawn
 }

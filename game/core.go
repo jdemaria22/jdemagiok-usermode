@@ -46,6 +46,7 @@ func GetPlayerController(d *kernel.Driver, localPlayer SLocalPlayer) SPlayerCont
 	playerController := SPlayerController{}
 	playerController.Pointer = d.Read(localPlayer.Pointer + offset.PlayerControllerOffset)
 	playerController.PlayerCameraManager = d.Read(playerController.Pointer + offset.PlayerCameraOffset)
+	playerController.MinimalViewInfo = d.ReadvmMinimalView(playerController.PlayerCameraManager + offset.CacheCamOffset)
 	playerController.AHUD = d.Read(playerController.Pointer + offset.MyHUDOffset)
 	playerController.Pawn = GetPawn(d, playerController)
 	return playerController
@@ -59,13 +60,13 @@ func GetPawn(d *kernel.Driver, playerController SPlayerController) SPawn {
 	pawn.FNameID = d.ReadvmInt(pawn.Pointer + offset.FnameIDOffset)
 	pawn.RelativeLocation = getRelativePosition(d, pawn.Pointer)
 	pawn.BIsDormant = d.ReadvmBool(pawn.Pointer + offset.DormantOffset)
-	pawn.Health = getHealth(d, pawn)
+	pawn.Health = getHealth(d, pawn.Pointer)
 	return pawn
 }
 
 func getTeamID(d *kernel.Driver, aPawn uintptr) int {
-	playerState := d.Read(aPawn + offset.PlayerStateOffset)
-	teamComponent := d.Read(playerState + offset.TeamComponentOffset)
+	// playerState := d.Read(aPawn + offset.PlayerStateOffset)
+	teamComponent := d.Read(aPawn + offset.TeamComponentOffset)
 	return d.ReadvmInt(teamComponent + offset.TeamIDOffset)
 }
 
@@ -74,8 +75,8 @@ func getRelativePosition(d *kernel.Driver, aPawn uintptr) geometry.FVector {
 	return d.ReadvmVector(rootComponent + offset.RelativeLocationOffset)
 }
 
-func getHealth(d *kernel.Driver, pawn SPawn) float32 {
-	damageHandler := d.Read(pawn.Pointer + offset.DamageHandlerOffset)
+func getHealth(d *kernel.Driver, pawnPointer uintptr) float32 {
+	damageHandler := d.Read(pawnPointer + offset.DamageHandlerOffset)
 	return d.ReadvmFloat(damageHandler + offset.CurrentHealthOffset)
 }
 
@@ -101,23 +102,11 @@ func getActorArray(d *kernel.Driver, world SWorld, persistanceLevel SPersistance
 		if actorPointerPawn != world.GameInstance.LocalPlayer.PlayerController.Pawn.Pointer {
 			id := d.ReadvmInt(actorPointerPawn + offset.ActorIDOffset)
 			if world.GameInstance.LocalPlayer.PlayerController.Pawn.UniqueID == id {
-				pawn := getPawn(d, actorPointerPawn)
+				pawn := SEnemyPawn{}
 				pawn.Pointer = actorPointerPawn
 				actors = append(actors, SActor{pawn})
 			}
 		}
 	}
 	return actors
-}
-
-func getPawn(d *kernel.Driver, pawnPointer uintptr) SPawn {
-	pawn := SPawn{}
-	pawn.Pointer = pawnPointer
-	pawn.TeamID = getTeamID(d, pawn.Pointer)
-	pawn.UniqueID = d.ReadvmInt(pawn.Pointer + offset.ActorIDOffset)
-	pawn.FNameID = d.ReadvmInt(pawn.Pointer + offset.FnameIDOffset)
-	pawn.RelativeLocation = getRelativePosition(d, pawn.Pointer)
-	pawn.BIsDormant = d.ReadvmBool(pawn.Pointer + offset.DormantOffset)
-	pawn.Health = getHealth(d, pawn)
-	return pawn
 }
