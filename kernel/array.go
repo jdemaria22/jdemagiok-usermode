@@ -11,5 +11,9 @@ func (arr *TArray) ReplaceData(newData uintptr) {
 }
 
 func (arr *TArray) ReadAtIndex(index int, d *Driver) uintptr {
-	return d.Readvm(arr.Data+(uintptr(index)*8), 8)
+	return d.Read(arr.Data + (uintptr(index) * 8))
+}
+
+func (arr *TArray) ReadAtIndex2(index int, d *Driver) uintptr {
+	return d.Read(arr.Data + (uintptr(index) * 8))
 }
