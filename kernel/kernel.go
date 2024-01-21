@@ -75,6 +75,13 @@ type KERNEL_READ_MINIMAP_VIEW_INFO_REQUEST struct {
 	size       int
 }
 
+type KERNEL_READ_FTRANSFOR_REQUEST struct {
+	srcPid     int
+	srcAddress uintptr
+	pBuffer    *geometry.FTransform
+	size       int
+}
+
 type _KERNEL_READ_GUARDED_REGION struct {
 	srcPid  int
 	pBuffer *uintptr
@@ -407,6 +414,32 @@ func (d *Driver) ReadvmMinimalView(address uintptr) geometry.FMinimalViewInfo {
 	if err != nil {
 		fmt.Println("Error reading memory:", err)
 		return geometry.FMinimalViewInfo{}
+	}
+	return *request.pBuffer
+}
+
+func (d *Driver) ReadvmFTransform(address uintptr) geometry.FTransform {
+	var buffer geometry.FTransform
+	request := KERNEL_READ_FTRANSFOR_REQUEST{
+		srcPid:     d.processID,
+		srcAddress: address,
+		pBuffer:    &buffer,
+		size:       int(unsafe.Sizeof(buffer)),
+	}
+
+	err := syscall.DeviceIoControl(
+		d.handle,
+		CTL_CODE(FILE_DEVICE_UNKNOWN, 0x888, METHOD_BUFFERED, FILE_ANY_ACCESS),
+		(*byte)(unsafe.Pointer(&request)),
+		uint32(unsafe.Sizeof(request)),
+		nil,
+		0,
+		nil,
+		nil,
+	)
+	if err != nil {
+		fmt.Println("Error reading memory:", err)
+		return geometry.FTransform{}
 	}
 	return *request.pBuffer
 }

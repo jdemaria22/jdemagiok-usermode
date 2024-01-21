@@ -4,6 +4,18 @@ import (
 	"math"
 )
 
+type FTransform struct {
+	Rot         FQuat
+	Translation FVector
+	Pad         [4]byte
+	Scale       FVector
+	Pad1        [4]byte
+}
+
+type FQuat struct {
+	X, Y, Z, W float32
+}
+
 type FVector struct {
 	X float32
 	Y float32
@@ -11,7 +23,10 @@ type FVector struct {
 }
 
 type D3DMATRIX struct {
-	M [4][4]float32
+	V_11, V_12, V_13, V_14 float32
+	V_21, V_22, V_23, V_24 float32
+	V_31, V_32, V_33, V_34 float32
+	V_41, V_42, V_43, V_44 float32
 }
 
 type FMinimalViewInfo struct {
@@ -25,6 +40,70 @@ const (
 	Height = 1080
 )
 
+func (t *FTransform) ToMatrixWithScale() D3DMATRIX {
+	var m D3DMATRIX
+
+	m.V_41 = t.Translation.X
+	m.V_42 = t.Translation.Y
+	m.V_43 = t.Translation.Z
+
+	x2 := t.Rot.X + t.Rot.X
+	y2 := t.Rot.Y + t.Rot.Y
+	z2 := t.Rot.Z + t.Rot.Z
+
+	xx2 := t.Rot.X * x2
+	yy2 := t.Rot.Y * y2
+	zz2 := t.Rot.Z * z2
+	m.V_11 = (1.0 - (yy2 + zz2)) * t.Scale.X
+	m.V_22 = (1.0 - (xx2 + zz2)) * t.Scale.Y
+	m.V_33 = (1.0 - (xx2 + yy2)) * t.Scale.Z
+
+	yz2 := t.Rot.Y * z2
+	wx2 := t.Rot.W * x2
+	m.V_32 = (yz2 - wx2) * t.Scale.Z
+	m.V_23 = (yz2 + wx2) * t.Scale.Y
+
+	xy2 := t.Rot.X * y2
+	wz2 := t.Rot.W * z2
+	m.V_21 = (xy2 - wz2) * t.Scale.Y
+	m.V_12 = (xy2 + wz2) * t.Scale.X
+
+	xz2 := t.Rot.X * z2
+	wy2 := t.Rot.W * y2
+	m.V_31 = (xz2 + wy2) * t.Scale.Z
+	m.V_13 = (xz2 - wy2) * t.Scale.X
+
+	m.V_14 = 0.0
+	m.V_24 = 0.0
+	m.V_34 = 0.0
+	m.V_44 = 1.0
+
+	return m
+}
+
+func MatrixMultiplication(pM1, pM2 D3DMATRIX) D3DMATRIX {
+	var pOut D3DMATRIX
+
+	pOut.V_11 = pM1.V_11*pM2.V_11 + pM1.V_12*pM2.V_21 + pM1.V_13*pM2.V_31 + pM1.V_14*pM2.V_41
+	pOut.V_12 = pM1.V_11*pM2.V_12 + pM1.V_12*pM2.V_22 + pM1.V_13*pM2.V_32 + pM1.V_14*pM2.V_42
+	pOut.V_13 = pM1.V_11*pM2.V_13 + pM1.V_12*pM2.V_23 + pM1.V_13*pM2.V_33 + pM1.V_14*pM2.V_43
+	pOut.V_14 = pM1.V_11*pM2.V_14 + pM1.V_12*pM2.V_24 + pM1.V_13*pM2.V_34 + pM1.V_14*pM2.V_44
+	pOut.V_21 = pM1.V_21*pM2.V_11 + pM1.V_22*pM2.V_21 + pM1.V_23*pM2.V_31 + pM1.V_24*pM2.V_41
+	pOut.V_22 = pM1.V_21*pM2.V_12 + pM1.V_22*pM2.V_22 + pM1.V_23*pM2.V_32 + pM1.V_24*pM2.V_42
+	pOut.V_23 = pM1.V_21*pM2.V_13 + pM1.V_22*pM2.V_23 + pM1.V_23*pM2.V_33 + pM1.V_24*pM2.V_43
+	pOut.V_24 = pM1.V_21*pM2.V_14 + pM1.V_22*pM2.V_24 + pM1.V_23*pM2.V_34 + pM1.V_24*pM2.V_44
+	pOut.V_31 = pM1.V_31*pM2.V_11 + pM1.V_32*pM2.V_21 + pM1.V_33*pM2.V_31 + pM1.V_34*pM2.V_41
+	pOut.V_32 = pM1.V_31*pM2.V_12 + pM1.V_32*pM2.V_22 + pM1.V_33*pM2.V_32 + pM1.V_34*pM2.V_42
+	pOut.V_33 = pM1.V_31*pM2.V_13 + pM1.V_32*pM2.V_23 + pM1.V_33*pM2.V_33 + pM1.V_34*pM2.V_43
+	pOut.V_34 = pM1.V_31*pM2.V_14 + pM1.V_32*pM2.V_24 + pM1.V_33*pM2.V_34 + pM1.V_34*pM2.V_44
+	pOut.V_41 = pM1.V_41*pM2.V_11 + pM1.V_42*pM2.V_21 + pM1.V_43*pM2.V_31 + pM1.V_44*pM2.V_41
+	pOut.V_42 = pM1.V_41*pM2.V_12 + pM1.V_42*pM2.V_22 + pM1.V_43*pM2.V_32 + pM1.V_44*pM2.V_42
+	pOut.V_43 = pM1.V_41*pM2.V_13 + pM1.V_42*pM2.V_23 + pM1.V_43*pM2.V_33 + pM1.V_44*pM2.V_43
+	pOut.V_44 = pM1.V_41*pM2.V_14 + pM1.V_42*pM2.V_24 + pM1.V_43*pM2.V_34 + pM1.V_44*pM2.V_44
+
+	return pOut
+}
+
 func Matrix(rot FVector, origin FVector) D3DMATRIX {
 	radPitch := (rot.X * float32(math.Pi) / 180.0)
 	radYaw := (rot.Y * float32(math.Pi) / 180.0)
@@ -37,14 +116,26 @@ func Matrix(rot FVector, origin FVector) D3DMATRIX {
 	SR := float32(math.Sin(float64(radRoll)))
 	CR := float32(math.Cos(float64(radRoll)))
 
-	matrix := D3DMATRIX{
-		M: [4][4]float32{
-			{CP * CY, CP * SY, SP, 0.0},
-			{SR*SP*CY - CR*SY, SR*SP*SY + CR*CY, -SR * CP, 0.0},
-			{-(CR*SP*CY + SR*SY), CY*SR - CR*SP*SY, CR * CP, 0.0},
-			{origin.X, origin.Y, origin.Z, 1.0},
-		},
-	}
+	matrix := D3DMATRIX{}
+	matrix.V_11 = CP * CY
+	matrix.V_12 = SR*SP*CY - CR*SY
+	matrix.V_13 = -(CR*SP*CY + SR*SY)
+	matrix.V_14 = origin.X
+
+	matrix.V_21 = CP * SY
+	matrix.V_22 = SR*SP*SY + CR*CY
+	matrix.V_23 = CY*SR - CR*SP*SY
+	matrix.V_24 = origin.Y
+
+	matrix.V_31 = SP
+	matrix.V_32 = -SR * CP
+	matrix.V_33 = CR * CP
+	matrix.V_34 = origin.Z
+
+	matrix.V_41 = 0.0
+	matrix.V_42 = 0.0
+	matrix.V_43 = 0.0
+	matrix.V_44 = 1.0
 
 	return matrix
 }
@@ -57,9 +148,9 @@ func ProjectWorldToScreen(worldLocation FVector, viewInfo FMinimalViewInfo) FVec
 
 	tempMatrix := Matrix(cameraRotation, FVector{0, 0, 0})
 
-	vAxisX := FVector{tempMatrix.M[0][0], tempMatrix.M[0][1], tempMatrix.M[0][2]}
-	vAxisY := FVector{tempMatrix.M[1][0], tempMatrix.M[1][1], tempMatrix.M[1][2]}
-	vAxisZ := FVector{tempMatrix.M[2][0], tempMatrix.M[2][1], tempMatrix.M[2][2]}
+	vAxisX := FVector{tempMatrix.V_11, tempMatrix.V_21, tempMatrix.V_31}
+	vAxisY := FVector{tempMatrix.V_12, tempMatrix.V_22, tempMatrix.V_32}
+	vAxisZ := FVector{tempMatrix.V_13, tempMatrix.V_23, tempMatrix.V_33}
 
 	vDelta := worldLocation.Subtract(cameraLocation)
 	vTransformed := FVector{

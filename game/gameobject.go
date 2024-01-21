@@ -54,6 +54,7 @@ type SEnemyPawn struct {
 	UniqueID                  int
 	FNameID                   int
 	RelativeLocation          geometry.FVector
+	RelativePosition          geometry.FVector
 	RelativeDistance          float32
 	BIsDormant                bool
 	Health                    float32
