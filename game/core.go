@@ -105,7 +105,7 @@ func getUWorld(d *kernel.Driver) uintptr {
 }
 
 func getArray(d *kernel.Driver, world SWorld) []SActor {
-	array := d.ReadvmArray(world.GameState + offset.PlayerState)
+	array := d.ReadvmArray(world.GameState + offset.PlayerStateArray)
 	var actors []SActor
 	myTeamid := world.GameInstance.LocalPlayer.PlayerController.Pawn.TeamID
 	for i := 0; i < int(array.Count); i++ {
