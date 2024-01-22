@@ -11,7 +11,7 @@ import (
 
 const (
 	PROCESSID_REQUEST   = iota
-	KERNEL_DRIVER_NAME  = "\\\\.\\dlinkjdemagiokk"
+	KERNEL_DRIVER_NAME  = "\\\\.\\dlinkjdemagiok1"
 	FILE_DEVICE_UNKNOWN = 0x00000022
 	METHOD_BUFFERED     = 0
 	FILE_ANY_ACCESS     = 0
