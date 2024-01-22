@@ -18,26 +18,22 @@ func (game *SGame) Draw(d *kernel.Driver, screen *ebiten.Image) {
 		enemyPawn := getEnemyPawn(d, actorArray.Pawn.Pointer)
 		if enemyPawn.Health > 0 && enemyPawn.BIsDormant {
 			enemyPawn = addAditionalInfoToEnemyPawn(d, enemyPawn, game)
-			drawBox(screen, enemyPawn.RelativeLocationProjected.X-enemyPawn.BoxWidth/2, enemyPawn.RelativeLocationProjected.Y-enemyPawn.BoxHeight/2, enemyPawn.BoxHeight, enemyPawn.BoxWidth)
+			drawBox(screen, enemyPawn.RelativeLocationProjected.X-enemyPawn.BoxWidth/2, enemyPawn.RelativeLocationProjected.Y-enemyPawn.BoxHeight/2, enemyPawn.BoxHeight, enemyPawn.BoxWidth, int(enemyPawn.Health))
 		}
 	}
 }
 
-func drawBox(screen *ebiten.Image, x, y, height, width float32) {
-	vector.StrokeLine(screen, x, y, x+width, y, 1, color.RGBA{255, 0, 0, 255}, false)
-	vector.StrokeLine(screen, x, y+height, x+width, y+height, 1, color.RGBA{255, 0, 0, 255}, false)
-	vector.StrokeLine(screen, x, y, x, y+height, 1, color.RGBA{255, 0, 0, 0}, false)
-	vector.StrokeLine(screen, x+width, y, x+width, y+height, 1, color.RGBA{255, 0, 0, 255}, false)
-}
+func drawBox(screen *ebiten.Image, x, y, height, width float32, health int) {
+	vector.StrokeLine(screen, x, y, x+width, y, 2, color.RGBA{255, 0, 0, 255}, false)
+	vector.StrokeLine(screen, x, y+height, x+width, y+height, 2, color.RGBA{255, 0, 0, 255}, false)
+	vector.StrokeLine(screen, x, y, x, y+height, 2, color.RGBA{255, 0, 0, 0}, false)
+	vector.StrokeLine(screen, x+width, y, x+width, y+height, 2, color.RGBA{255, 0, 0, 255}, false)
 
-func (game *SGame) Loop(d *kernel.Driver) {
-	actorArray := game.World.PersistanceLevel.ActorArray
-	for _, actorArray := range actorArray {
-		enemyPawn := getEnemyPawn(d, actorArray.Pawn.Pointer)
-		if enemyPawn.Health > 0 || enemyPawn.BIsDormant {
-			enemyPawn = addAditionalInfoToEnemyPawn(d, enemyPawn, game)
-		}
-	}
+	percentage := float32(health) / 100.0
+	lineHeight := height * percentage
+	lineX := x + width
+	lineY := y + height - lineHeight
+	vector.StrokeLine(screen, lineX, lineY, lineX, y+height, 2, color.RGBA{0, 255, 0, 255}, false)
 }
 
 func getEnemyPawn(d *kernel.Driver, pawnPointer uintptr) SEnemyPawn {
