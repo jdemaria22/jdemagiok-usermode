@@ -19,35 +19,6 @@ func GetWorld(d *kernel.Driver) SWorld {
 	gameWorld.GameInstance = GetGameInstance(d, gameWorld)
 	gameWorld.PersistanceLevel = GetPersisntanceLevel(d, gameWorld)
 	gameWorld.GameState = d.Read(gameWorld.Pointer + offset.GameStateOffset)
-	// array := d.ReadvmArray(gameWorld.GameState + offset.SpawnedCharacter)
-	// var actors []SActor
-	// myTeamid := 0
-	// count := 0
-	// for i := 0; i < int(array.Count); i++ {
-	// 	actorPointerPawn := array.ReadAtIndex2(i, d)
-	// 	if actorPointerPawn == 0 {
-	// 		continue
-	// 	}
-	// 	pawnPtr := d.Read(actorPointerPawn + 0x918)
-	// 	if pawnPtr == 0 {
-	// 		continue
-	// 	}
-	// 	if count == 0 {
-	// 		state := d.Read(pawnPtr + offset.PlayerStateOffset)
-	// 		team := getTeamID(d, state)
-	// 		myTeamid = team
-	// 		count++
-	// 		continue
-	// 	}
-	// 	state := d.Read(pawnPtr + offset.PlayerStateOffset)
-	// 	pawnTeamId := getTeamID(d, state)
-	// 	if myTeamid == pawnTeamId {
-	// 		continue
-	// 	}
-	// 	pawn := SEnemyPawn{}
-	// 	pawn.Pointer = pawnPtr
-	// 	actors = append(actors, SActor{pawn})
-	// }
 	gameWorld.PersistanceLevel.ActorArray = getArray(d, gameWorld)
 	return gameWorld
 }
@@ -92,7 +63,7 @@ func GetPlayerController(d *kernel.Driver, localPlayer SLocalPlayer) SPlayerCont
 func GetPawn(d *kernel.Driver, playerController SPlayerController) SPawn {
 	pawn := SPawn{}
 	pawn.Pointer = d.Read(playerController.Pointer + offset.AcknowledgedPawnOffset)
-	// pawn.TeamID = getTeamID(d, pawn.Pointer)
+	pawn.TeamID = getTeamID(d, pawn.Pointer)
 	pawn.UniqueID = d.ReadvmInt(pawn.Pointer + offset.ActorIDOffset)
 	pawn.FNameID = d.ReadvmInt(pawn.Pointer + offset.FnameIDOffset)
 	pawn.RelativeLocation = getRelativePosition(d, pawn.Pointer)
@@ -102,8 +73,8 @@ func GetPawn(d *kernel.Driver, playerController SPlayerController) SPawn {
 }
 
 func getTeamID(d *kernel.Driver, aPawn uintptr) int {
-	// playerState := d.Read(aPawn + offset.PlayerStateOffset)
-	teamComponent := d.Read(aPawn + offset.TeamComponentOffset)
+	playerState := d.Read(aPawn + offset.PlayerStateOffset)
+	teamComponent := d.Read(playerState + offset.TeamComponentOffset)
 	return d.ReadvmInt(teamComponent + offset.TeamIDOffset)
 }
 
@@ -119,7 +90,9 @@ func getHealth(d *kernel.Driver, pawnPointer uintptr) float32 {
 
 func getUWorld(d *kernel.Driver) uintptr {
 	uworld := uintptr(d.Readvm(d.Guardedregion+offset.World, 8))
-
+	if uworld == 0 {
+		log.Fatal("se acabo instancia")
+	}
 	var uworldOffset uintptr
 
 	if uworld > 0x10000000000 {
@@ -134,7 +107,7 @@ func getUWorld(d *kernel.Driver) uintptr {
 func getArray(d *kernel.Driver, world SWorld) []SActor {
 	array := d.ReadvmArray(world.GameState + offset.SpawnedCharacter)
 	var actors []SActor
-	myTeamid := 0
+	myTeamid := world.GameInstance.LocalPlayer.PlayerController.Pawn.TeamID
 	for i := 0; i < int(array.Count); i++ {
 		actorPointerPawn := array.ReadAtIndex2(i, d)
 		if actorPointerPawn == 0 {
@@ -144,8 +117,7 @@ func getArray(d *kernel.Driver, world SWorld) []SActor {
 		if pawnPtr == 0 {
 			continue
 		}
-		state := d.Read(pawnPtr + offset.PlayerStateOffset)
-		pawnTeamId := getTeamID(d, state)
+		pawnTeamId := getTeamID(d, pawnPtr)
 		if myTeamid == pawnTeamId {
 			continue
 		}

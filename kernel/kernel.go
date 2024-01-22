@@ -4,13 +4,14 @@ import (
 	"fmt"
 	"jdemagiok-usermode/geometry"
 	"jdemagiok-usermode/usermode"
+	"log"
 	"syscall"
 	"unsafe"
 )
 
 const (
 	PROCESSID_REQUEST   = iota
-	KERNEL_DRIVER_NAME  = "\\\\.\\dlinkjdemagiok"
+	KERNEL_DRIVER_NAME  = "\\\\.\\dlinkjdemagiokk"
 	FILE_DEVICE_UNKNOWN = 0x00000022
 	METHOD_BUFFERED     = 0
 	FILE_ANY_ACCESS     = 0
@@ -101,6 +102,8 @@ type Driver struct {
 func CTL_CODE(deviceType, function, method, access uint32) uint32 {
 	return (deviceType << 16) | (access << 14) | (function << 2) | method
 }
+
+var errorRpmCounter int = 0
 
 func NewDriver() *Driver {
 	name, _ := syscall.UTF16PtrFromString(KERNEL_DRIVER_NAME)
@@ -223,6 +226,10 @@ func (d *Driver) ReadGuardedRegion() uintptr {
 
 	if err != nil {
 		fmt.Println("Error reading memory:", err)
+		if errorRpmCounter > 15 {
+			log.Fatal("muchos rpm failed")
+		}
+		errorRpmCounter++
 		return 0
 	}
 
@@ -258,6 +265,10 @@ func (d *Driver) Readvm(address uintptr, size int) uintptr {
 	)
 	if err != nil {
 		fmt.Println("Error reading memory:", err)
+		if errorRpmCounter > 15 {
+			log.Fatal("muchos rpm failed")
+		}
+		errorRpmCounter++
 		return 0
 	}
 	return *request.pBuffer
@@ -284,6 +295,10 @@ func (d *Driver) ReadvmFloat(address uintptr) float32 {
 	)
 	if err != nil {
 		fmt.Println("Error reading memory:", err)
+		if errorRpmCounter > 15 {
+			log.Fatal("muchos rpm failed")
+		}
+		errorRpmCounter++
 		return 0
 	}
 	return *request.pBuffer
@@ -310,6 +325,10 @@ func (d *Driver) ReadvmBool(address uintptr) bool {
 	)
 	if err != nil {
 		fmt.Println("Error reading memory:", err)
+		if errorRpmCounter > 15 {
+			log.Fatal("muchos rpm failed")
+		}
+		errorRpmCounter++
 		return false
 	}
 	return *request.pBuffer
@@ -335,6 +354,11 @@ func (d *Driver) ReadvmInt(address uintptr) int {
 		nil,
 	)
 	if err != nil {
+		fmt.Println("Error reading memory:", err)
+		if errorRpmCounter > 15 {
+			log.Fatal("muchos rpm failed")
+		}
+		errorRpmCounter++
 		return 0
 	}
 	return *request.pBuffer
@@ -361,6 +385,10 @@ func (d *Driver) ReadvmVector(address uintptr) geometry.FVector {
 	)
 	if err != nil {
 		fmt.Println("Error reading memory:", err)
+		if errorRpmCounter > 15 {
+			log.Fatal("muchos rpm failed")
+		}
+		errorRpmCounter++
 		return geometry.FVector{}
 	}
 	return *request.pBuffer
@@ -387,6 +415,10 @@ func (d *Driver) ReadvmArray(address uintptr) TArray {
 	)
 	if err != nil {
 		fmt.Println("Error reading memory:", err)
+		if errorRpmCounter > 15 {
+			log.Fatal("muchos rpm failed")
+		}
+		errorRpmCounter++
 		return TArray{}
 	}
 	return *request.pBuffer
@@ -413,6 +445,10 @@ func (d *Driver) ReadvmMinimalView(address uintptr) geometry.FMinimalViewInfo {
 	)
 	if err != nil {
 		fmt.Println("Error reading memory:", err)
+		if errorRpmCounter > 15 {
+			log.Fatal("muchos rpm failed")
+		}
+		errorRpmCounter++
 		return geometry.FMinimalViewInfo{}
 	}
 	return *request.pBuffer
@@ -439,6 +475,10 @@ func (d *Driver) ReadvmFTransform(address uintptr) geometry.FTransform {
 	)
 	if err != nil {
 		fmt.Println("Error reading memory:", err)
+		if errorRpmCounter > 15 {
+			log.Fatal("muchos rpm failed")
+		}
+		errorRpmCounter++
 		return geometry.FTransform{}
 	}
 	return *request.pBuffer
