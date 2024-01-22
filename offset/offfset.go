@@ -31,6 +31,6 @@ const (
 	HPOffset                 uintptr = 0x134
 	MaxHPOffset              uintptr = 0x138
 	CacheCamOffset           uintptr = 0x1FB0
-	PlayerState              uintptr = 0x3f0
+	PlayerStateCharacter     uintptr = 0x3f0
 	SpawnedCharacter         uintptr = 0x918
 )
