@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"jdemagiok-usermode/game"
 	"jdemagiok-usermode/kernel"
+	"jdemagiok-usermode/keyboard"
 	"jdemagiok-usermode/sys"
+	"jdemagiok-usermode/win"
 	"log"
 	"math/rand"
 	"strconv"
@@ -31,6 +33,8 @@ var count = 0
 var NAME string
 var gamec game.SGame
 var driver *kernel.Driver
+var activeWall bool
+var activeAim bool
 
 type GameE struct {
 }
@@ -45,7 +49,7 @@ func main() {
 	ebiten.SetWindowFloating(true)
 	ebiten.SetInitFocused(true)
 	ebiten.SetVsyncEnabled(true)
-	ebiten.SetMaxTPS(165)
+	ebiten.SetMaxTPS(144)
 	ebiten.SetFullscreen(true)
 	driver = kernel.NewDriver()
 	defer driver.Close()
@@ -82,7 +86,12 @@ func (g *GameE) Update() error {
 
 func (g *GameE) Draw(screen *ebiten.Image) {
 	gamec = game.GetGame(driver)
-	gamec.Draw(driver, screen)
+	if keyboard.IsKeyPressed(win.VK_F1) {
+		activeWall = !activeWall
+	}
+	if activeWall {
+		gamec.Draw(driver, screen)
+	}
 }
 
 func (g *GameE) Layout(outsideWidth, outsideHeight int) (int, int) {
