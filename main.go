@@ -77,11 +77,11 @@ func (g *GameE) Update() error {
 			sys.SetForegroundWindow(wnproc)
 		}()
 	}
-	gamec = game.GetGame(driver)
 	return nil
 }
 
 func (g *GameE) Draw(screen *ebiten.Image) {
+	gamec = game.GetGame(driver)
 	gamec.Draw(driver, screen)
 }
 
