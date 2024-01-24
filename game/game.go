@@ -16,8 +16,11 @@ func (game *SGame) Draw(d *kernel.Driver, screen *ebiten.Image) {
 	actorArray := game.World.PersistanceLevel.ActorArray
 	for _, actorArray := range actorArray {
 		enemyPawn := getEnemyPawn(d, actorArray.Pawn.Pointer)
-		if enemyPawn.Health > 0 && enemyPawn.BIsDormant {
+		if enemyPawn.Health > 0 {
 			enemyPawn = addAditionalInfoToEnemyPawn(d, enemyPawn, game)
+			// if enemyPawn.RelativeLocationProjected.X > 1920 || enemyPawn.RelativeLocationProjected.Y > 1080 {
+			// continue
+			// }
 			drawBox(screen, enemyPawn.RelativeLocationProjected.X-enemyPawn.BoxWidth/2, enemyPawn.RelativeLocationProjected.Y-enemyPawn.BoxHeight/2, enemyPawn.BoxHeight, enemyPawn.BoxWidth, int(enemyPawn.Health))
 		}
 	}
@@ -33,7 +36,7 @@ func drawBox(screen *ebiten.Image, x, y, height, width float32, health int) {
 	lineHeight := height * percentage
 	lineX := x + width
 	lineY := y + height - lineHeight
-	vector.StrokeLine(screen, lineX, lineY, lineX, y+height, 2, color.RGBA{0, 255, 0, 255}, false)
+	vector.StrokeLine(screen, lineX+5, lineY, lineX+5, y+height, 2, color.RGBA{0, 255, 0, 255}, false)
 }
 
 func getEnemyPawn(d *kernel.Driver, pawnPointer uintptr) SEnemyPawn {

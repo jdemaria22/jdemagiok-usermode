@@ -27,7 +27,7 @@ func GetPersisntanceLevel(d *kernel.Driver, world SWorld) SPersistanceLevel {
 	persistanceLevel := SPersistanceLevel{}
 	persistanceLevel.Pointer = d.Read(world.Pointer + offset.PersistentLevelOffset)
 	if persistanceLevel.Pointer == 0 {
-		log.Fatal("se acabo instancia")
+		log.Fatal("se acabo instancia GetPersisntanceLevel")
 	}
 	return persistanceLevel
 }
@@ -36,7 +36,7 @@ func GetGameInstance(d *kernel.Driver, world SWorld) SGameInstance {
 	gameInstance := SGameInstance{}
 	gameInstance.Pointer = d.Read(world.Pointer + offset.OwningGameInstanceOffset)
 	if gameInstance.Pointer == 0 {
-		log.Fatal("se acabo instancia")
+		log.Fatal("se acabo instancia GetGameInstance")
 	}
 	gameInstance.LocalPlayerArray = d.Read(gameInstance.Pointer + offset.LocalPlayersOffset)
 	gameInstance.LocalPlayer = GetLocalPlayer(d, gameInstance)
@@ -91,7 +91,7 @@ func getHealth(d *kernel.Driver, pawnPointer uintptr) float32 {
 func getUWorld(d *kernel.Driver) uintptr {
 	uworld := uintptr(d.Readvm(d.Guardedregion+offset.World, 8))
 	if uworld == 0 {
-		log.Fatal("se acabo instancia")
+		log.Fatal("se acabo instancia getUWorld")
 	}
 	var uworldOffset uintptr
 
